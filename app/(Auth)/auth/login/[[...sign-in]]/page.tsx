@@ -11,10 +11,9 @@ export default function SignInPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const role = user?.publicMetadata?.role;
 
-    if (role) {
-      router.push(`/${role}`);
+    if (user) {
+      router.push(`/`);
     } else {
       router.push("/auth/login");
     }

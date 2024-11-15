@@ -22,7 +22,8 @@ export default {
   			},
   			primary: {
   				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
+  				one: 'hsl(272.2,70.1%,30.2%)',
+  				two: 'hsl(272.2,70%,41.8%)',
   			},
   			secondary: {
   				DEFAULT: 'hsl(var(--secondary))',

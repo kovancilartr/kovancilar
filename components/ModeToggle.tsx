@@ -46,7 +46,7 @@ export function ModeToggle({ footer }: ModeToggleProps) {
             disabled={isDisabled}
             variant="ghost"
             size="icon"
-            className="bg-transparent dark:bg-transparent focus:bg-transparent"
+            className="bg-transparent dark:bg-transparent focus:bg-transparent border shadow-md dark:shadow-gray-600"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           >
             <Sun className={sunClass + " text-black"} />

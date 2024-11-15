@@ -6,7 +6,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -64,7 +63,6 @@ body {
   }
 }
 
-
 @layer base {
   * {
     @apply border-border;
@@ -72,4 +70,19 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+/* Geçiş animasyonu */
+@keyframes slide-in {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease forwards; /* Animasyon süresi ve geçiş ayarları */
 }
