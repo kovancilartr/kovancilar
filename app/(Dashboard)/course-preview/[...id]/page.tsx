@@ -15,7 +15,7 @@ export default function CoursePage() {
       setId(Array.isArray(params.id) ? params.id : [params.id]);
     }
   }, [params.id]);
-
+  console.log("id", id);
   const courses = [
     {
       id: 1,

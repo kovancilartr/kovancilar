@@ -3,6 +3,7 @@ import { useUser } from "@clerk/nextjs";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentUser: any;
   loading: boolean;
 }
@@ -13,6 +14,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { user, isLoaded } = useUser();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
