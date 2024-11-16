@@ -9,8 +9,20 @@ export async function GET() {
   try {
     const courses = await prisma.courses.findMany({
       include: {
-        students: true,
-        lessons: true,
+        students: {
+          select: {
+            name: true,
+            img: true,
+            surname: true
+          }
+        },
+        lessons: {
+          select: {
+            name: true,
+            pdfUrl: true,
+            videoUrl: true
+          }
+        }
       },
       orderBy: {
         startTime: "asc",
@@ -19,7 +31,10 @@ export async function GET() {
         ttl: 60,
         swr: 30,
       },
+      take: 10,
     });
+
+    
     console.log("courses", courses);
     return NextResponse.json(courses);
   } catch (error) {
