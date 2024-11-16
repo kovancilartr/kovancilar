@@ -2,12 +2,11 @@
 import React from "react";
 import AppLogo from "./AppLogo";
 import { ModeToggle } from "@/components/ModeToggle";
-import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Shield, UserCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { useAuthContext } from "@/app/AuthProvider";
+import MoreMenu from "./MoreMenu";
 
 const SideBar = () => {
   const path = usePathname();
@@ -24,11 +23,15 @@ const SideBar = () => {
       icon: Shield,
       path: "/about",
     },
-    {
-      name: currentUser ? "Profil" : "Giriş Yap", // currentUser varsa "Profil", yoksa "Giriş Yap"
-      icon: UserCircle,
-      path: currentUser ? "/auth/profile" : "/auth/login", // currentUser varsa "/auth/profile", yoksa "/auth/login"
-    },
+    ...(currentUser
+      ? [
+          {
+            name: "Profil",
+            icon: UserCircle,
+            path: "/auth/profile",
+          },
+        ]
+      : []),
   ];
   return (
     <div className="h-screen shadow-md dark:shadow-sm dark:shadow-slate-700 p-4">
@@ -36,9 +39,10 @@ const SideBar = () => {
         <ModeToggle />
         <AppLogo />
       </div>
-      <div className="mt-6 space-y-16">
-        <Button className="w-full dark:text-black">+ Yeni Oluştur</Button>
-        <div>
+      <div className="mt-6">
+        {/* <Button className="w-full dark:text-black">+ Yeni Oluştur</Button> */}
+        <hr className="dark:border-slate-700" />
+        <div className="mt-0">
           {!loading &&
             menuList.map((item, key) => (
               <Link
@@ -55,14 +59,17 @@ const SideBar = () => {
         </div>
       </div>
 
-      <div className="border p-3 bg-slate-100  dark:bg-slate-700 rounded-lg absolute bottom-6 w-[87%]">
-        <h2 className="text-xl mb-2">Lorem ipsum dolor</h2>
-        <Progress value={40} />
-        <h2 className="text-sm">Lorem ipsum dolor sit amet.</h2>
-
-        <Link href={"/dashboard/upgrade"} className="text-primary text-sm mt-3">
-          Lorem.Ipsum
-        </Link>
+      <div className="border-t absolute left-0 -bottom-2 w-full">
+        <div className="flex flex-row px-4 pt-2 pb-4">
+          <h2 className="text-[12px] cursor-default">
+            Bu tasarım{" "}
+            <span className="font-bold text-red-700 dark:text-primary">
+              Kovancılar Yazılım
+            </span>{" "}
+            tarafından geliştirilmiştir.
+          </h2>
+          <MoreMenu />
+        </div>
       </div>
     </div>
   );

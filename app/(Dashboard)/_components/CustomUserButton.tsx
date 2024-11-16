@@ -1,6 +1,6 @@
 "use client";
+import Modal from "@/app/(Auth)/auth/_components/Modal";
 import { useAuthContext } from "@/app/AuthProvider";
-import { Button } from "@/components/ui/button";
 import { SignOutButton } from "@clerk/nextjs";
 import {
   DropdownMenu,
@@ -89,11 +89,7 @@ const CustomUserButton = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Link href={"/auth/login"}>
-          <Button variant={"default"} size={"sm"}>
-            Giriş Yap
-          </Button>
-        </Link>
+        <Modal />
       )}
     </>
   );
