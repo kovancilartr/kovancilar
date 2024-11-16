@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
 }
 
 model Admin {
@@ -13,10 +13,10 @@ model Admin {
 }
 
 model Student {
-  id        String   @id
-  email     String?  @unique
-  username  String   @unique
-  phone     String?  @unique
+  id        String    @id
+  email     String?   @unique
+  username  String    @unique
+  phone     String?   @unique
   name      String
   surname   String
   address   String
@@ -24,7 +24,7 @@ model Student {
   sex       UserSex
   birthday  DateTime
   Courses   Courses[]
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model Teacher {
@@ -59,7 +59,7 @@ model Courses {
 }
 
 model Lessons {
-  id           String   @id
+  id           String    @id
   name         String
   description  String
   previewImage String
@@ -68,7 +68,7 @@ model Lessons {
   day          Day
   startTime    DateTime
   endTime      DateTime
-  Courses   Courses[]
+  Courses      Courses[]
 }
 
 enum UserSex {
