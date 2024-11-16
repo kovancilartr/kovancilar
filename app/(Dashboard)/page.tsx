@@ -19,7 +19,7 @@ const Dashboard = () => {
     fetchCourses();
   }, []);
 
-  console.log("coursesData", coursesData);
+  // console.log("coursesData", coursesData);
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5">

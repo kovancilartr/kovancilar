@@ -1,8 +1,11 @@
-import { PrismaClient } from "@prisma/client/edge";
+import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
+import { withOptimize } from "@prisma/extension-optimize";
 
 const prismaClientSingleton = () => {
-  return new PrismaClient().$extends(withAccelerate());
+  return new PrismaClient()
+    .$extends(withOptimize({ apiKey: process.env.OPTIMIZE_API_KEY || "" }))
+    .$extends(withAccelerate());
 };
 
 declare const globalThis: {
