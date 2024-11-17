@@ -1,9 +1,6 @@
 "use server";
 import prisma from "@/lib/prisma";
-// import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-
-// const prisma = new PrismaClient();
 
 export async function GET() {
   try {
@@ -13,16 +10,16 @@ export async function GET() {
           select: {
             name: true,
             img: true,
-            surname: true
-          }
+            surname: true,
+          },
         },
         lessons: {
           select: {
             name: true,
             pdfUrl: true,
-            videoUrl: true
-          }
-        }
+            videoUrl: true,
+          },
+        },
       },
       orderBy: {
         startTime: "asc",
@@ -33,9 +30,7 @@ export async function GET() {
       },
       take: 10,
     });
-
-    
-    console.log("courses", courses);
+    // console.log("courses", courses);
     return NextResponse.json(courses);
   } catch (error) {
     console.error("Error fetching projects:", error);

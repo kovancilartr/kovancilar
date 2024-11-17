@@ -1,39 +1,17 @@
-import React from "react";
-import ReactPlayer from "react-player/lazy";
-
-interface VideoPlayerProps {
-  videoOptions: {
-    url: string;
-    controls?: boolean;
-    width?: number | string;
-    height?: number | string;
-    className?: string;
-    poster?: string;
-  };
-}
-
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoOptions }) => {
-  const {
-    url,
-    controls = false,
-    width = "100%",
-    height = "100%",
-    className,
-    poster,
-  } = videoOptions;
+export const VideoPlayer = ({ url }: { url: string }) => {
+  if (!url) return <div>Video yükleniyor...</div>;
 
   return (
-    <div className={`video-player`}>
-      <ReactPlayer
-        url={url}
-        controls={controls}
-        width={width}
-        height={height}
-        className={className}
-        poster={poster}
-      />
+    <div className="relative w-1/2">
+      <div className="aspect-video">
+        <iframe
+          src={url}
+          title="Video"
+          allow="autoplay; fullscreen; picture-in-picture speed=1.0"
+          loading="lazy"
+          className="w-full h-full"
+        />
+      </div>
     </div>
   );
 };
-
-export default VideoPlayer;

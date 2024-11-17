@@ -1,4 +1,4 @@
-import { Lessons, Student, Teacher } from "@prisma/client";
+import { Courses, Day, Lessons, Student, Teacher } from "@prisma/client";
 
 export interface Course {
   id: number;
@@ -14,4 +14,16 @@ export interface Course {
   startTime: Date;
   endTime: Date;
   createdAt: Date;
+}
+export interface Lesson {
+  id: number;
+  name: string;
+  description: string;
+  previewImage: string;
+  videoUrl: string;
+  pdfUrl: string | null;
+  day: Day;
+  startTime: Date;
+  endTime: Date;
+  Courses: Courses[];
 }
