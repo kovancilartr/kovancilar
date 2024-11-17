@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 export default function LessonId() {
   // Fonksiyon adı büyük harfle başlatıldı
   const { id, lessonId } = useParams();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [course, setCourse] = useState<Course>({} as Course);
   const [lesson, setLesson] = useState<Lesson>({} as Lesson);
 
