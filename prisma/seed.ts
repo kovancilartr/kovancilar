@@ -59,6 +59,7 @@ async function main() {
         previewImage: `https://picsum.photos/200/300?random=${i}`,
         videoUrl: `https://picsum.photos/200/300?random=${i}`,
         pdfUrl: `https://picsum.photos/200/300?random=${i}`,
+        lessonCompletion: Math.random() < 0.5,
         day: Day[
           Object.keys(Day)[
             Math.floor(Math.random() * Object.keys(Day).length)

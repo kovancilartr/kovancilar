@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 
 export interface ModeToggleProps {
   footer?: boolean;
+  variant?: "ghost" | "themeToggle";
 }
 
-export function ModeToggle({ footer }: ModeToggleProps) {
+export function ModeToggle({ footer, variant }: ModeToggleProps) {
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const isDisabled = false; // Butonun Disable durumunu kontrol eder.
@@ -44,9 +45,8 @@ export function ModeToggle({ footer }: ModeToggleProps) {
         <div className="relative group">
           <Button
             disabled={isDisabled}
-            variant="ghost"
+            variant={variant}
             size="icon"
-            className="bg-transparent dark:bg-transparent focus:bg-transparent border shadow-md dark:shadow-gray-600"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           >
             <Sun className={sunClass + " text-black"} />
