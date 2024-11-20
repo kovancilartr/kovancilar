@@ -1,0 +1,99 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["tracing"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       String @id
+  username String @unique
+}
+
+model Student {
+  id             String           @id
+  email          String?          @unique
+  username       String           @unique
+  phone          String?          @unique
+  name           String
+  surname        String
+  address        String
+  img            String?
+  sex            UserSex
+  birthday       DateTime
+  createdAt      DateTime         @default(now())
+  studentLessons StudentLessons[]
+  Courses        Courses[]        @relation("CoursesToStudent")
+}
+
+model Teacher {
+  id        String    @id
+  email     String?   @unique
+  username  String    @unique
+  phone     String?   @unique
+  name      String
+  surname   String
+  address   String
+  img       String?
+  sex       UserSex
+  birthday  DateTime
+  createdAt DateTime  @default(now())
+  Courses   Courses[]
+}
+
+model Courses {
+  name         String
+  description  String
+  previewImage String?
+  previewVideo String?
+  courseUrl    String?
+  supervisorId String?
+  startTime    DateTime
+  endTime      DateTime
+  createdAt    DateTime  @default(now())
+  id           Int       @id @default(autoincrement())
+  supervisor   Teacher?  @relation(fields: [supervisorId], references: [id])
+  lessons      Lessons[] @relation("CoursesToLessons")
+  students     Student[] @relation("CoursesToStudent")
+}
+
+model Lessons {
+  id             String           @id
+  name           String
+  description    String
+  previewImage   String
+  videoUrl       String
+  pdfUrl         String?
+  day            Day
+  startTime      DateTime
+  endTime        DateTime
+  studentLessons StudentLessons[]
+  Courses        Courses[]        @relation("CoursesToLessons")
+}
+
+model StudentLessons {
+  id               Int      @id @default(autoincrement())
+  studentId        String
+  lessonId         String
+  lessonCompletion Boolean?
+  lesson           Lessons  @relation(fields: [lessonId], references: [id])
+  student          Student  @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, lessonId])
+}
+
+enum UserSex {
+  MALE
+  FEMALE
+}
+
+enum Day {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}

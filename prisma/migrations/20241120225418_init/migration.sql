@@ -48,6 +48,7 @@ CREATE TABLE "Teacher" (
 
 -- CreateTable
 CREATE TABLE "Courses" (
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "previewImage" TEXT,
@@ -57,7 +58,6 @@ CREATE TABLE "Courses" (
     "startTime" TIMESTAMP(3) NOT NULL,
     "endTime" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "id" SERIAL NOT NULL,
 
     CONSTRAINT "Courses_pkey" PRIMARY KEY ("id")
 );
@@ -73,9 +73,60 @@ CREATE TABLE "Lessons" (
     "day" "Day" NOT NULL,
     "startTime" TIMESTAMP(3) NOT NULL,
     "endTime" TIMESTAMP(3) NOT NULL,
-    "lessonCompletion" BOOLEAN NOT NULL,
 
     CONSTRAINT "Lessons_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StudentCourses" (
+    "id" SERIAL NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "courseId" INTEGER NOT NULL,
+
+    CONSTRAINT "StudentCourses_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StudentLessons" (
+    "id" SERIAL NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "lessonId" TEXT NOT NULL,
+    "lessonCompletion" BOOLEAN,
+
+    CONSTRAINT "StudentLessons_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Exam" (
+    "id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "lessonId" TEXT NOT NULL,
+    "coursesId" INTEGER,
+
+    CONSTRAINT "Exam_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Question" (
+    "id" SERIAL NOT NULL,
+    "text" TEXT NOT NULL,
+    "imageUrl" TEXT,
+    "options" TEXT[],
+    "answer" TEXT NOT NULL,
+    "examId" INTEGER NOT NULL,
+
+    CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ExamResult" (
+    "id" SERIAL NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "examId" INTEGER NOT NULL,
+    "score" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "ExamResult_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -112,6 +163,15 @@ CREATE UNIQUE INDEX "Teacher_username_key" ON "Teacher"("username");
 CREATE UNIQUE INDEX "Teacher_phone_key" ON "Teacher"("phone");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "StudentCourses_studentId_courseId_key" ON "StudentCourses"("studentId", "courseId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "StudentLessons_studentId_lessonId_key" ON "StudentLessons"("studentId", "lessonId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ExamResult_studentId_examId_key" ON "ExamResult"("studentId", "examId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_CoursesToLessons_AB_unique" ON "_CoursesToLessons"("A", "B");
 
 -- CreateIndex
@@ -125,6 +185,33 @@ CREATE INDEX "_CoursesToStudent_B_index" ON "_CoursesToStudent"("B");
 
 -- AddForeignKey
 ALTER TABLE "Courses" ADD CONSTRAINT "Courses_supervisorId_fkey" FOREIGN KEY ("supervisorId") REFERENCES "Teacher"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StudentCourses" ADD CONSTRAINT "StudentCourses_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Courses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StudentCourses" ADD CONSTRAINT "StudentCourses_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StudentLessons" ADD CONSTRAINT "StudentLessons_lessonId_fkey" FOREIGN KEY ("lessonId") REFERENCES "Lessons"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StudentLessons" ADD CONSTRAINT "StudentLessons_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Exam" ADD CONSTRAINT "Exam_coursesId_fkey" FOREIGN KEY ("coursesId") REFERENCES "Courses"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Exam" ADD CONSTRAINT "Exam_lessonId_fkey" FOREIGN KEY ("lessonId") REFERENCES "Lessons"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Question" ADD CONSTRAINT "Question_examId_fkey" FOREIGN KEY ("examId") REFERENCES "Exam"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExamResult" ADD CONSTRAINT "ExamResult_examId_fkey" FOREIGN KEY ("examId") REFERENCES "Exam"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExamResult" ADD CONSTRAINT "ExamResult_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CoursesToLessons" ADD CONSTRAINT "_CoursesToLessons_A_fkey" FOREIGN KEY ("A") REFERENCES "Courses"("id") ON DELETE CASCADE ON UPDATE CASCADE;

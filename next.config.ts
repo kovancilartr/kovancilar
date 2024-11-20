@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     domains: [
       "img.clerk.com",
       "picsum.photos",
+      "loremflickr.com",
     ], // Dış alan adını buraya ekleyin
   },
 };

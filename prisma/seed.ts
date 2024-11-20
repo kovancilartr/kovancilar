@@ -1,106 +1,236 @@
-import { Day, PrismaClient, UserSex } from "@prisma/client";
-import { loremIpsum } from "lorem-ipsum";
+import { PrismaClient } from "@prisma/client";
+import { faker } from "@faker-js/faker";
+
 const prisma = new PrismaClient();
 
 async function main() {
-  // ADMIN
-  for (let i = 1; i <= 3; i++) {
-    await prisma.admin.create({
+  // Admin
+  const admins = await Promise.all(
+    Array.from({ length: 2 }, () =>
+      prisma.admin.create({
+        data: {
+          id: faker.string.uuid(),
+          username: faker.internet.username(),
+        },
+      })
+    )
+  );
+
+  // Teacher
+  const teachers = await Promise.all(
+    Array.from({ length: 5 }, () =>
+      prisma.teacher.create({
+        data: {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          username: faker.internet.username(),
+          phone: faker.phone.number(),
+          name: faker.person.firstName(),
+          surname: faker.person.lastName(),
+          address: faker.location.streetAddress(),
+          img: faker.image.avatar(),
+          sex: faker.helpers.arrayElement(["MALE", "FEMALE"]),
+          birthday: faker.date.birthdate({ min: 30, max: 50, mode: "age" }),
+        },
+      })
+    )
+  );
+
+  // Courses
+  const courses = await Promise.all(
+    Array.from({ length: 5 }, (_, index) =>
+      prisma.courses.create({
+        data: {
+          name: `Course ${index + 1}`,
+          description: faker.lorem.sentences(2),
+          courseUrl: faker.internet.url(),
+          previewImage: faker.image.urlLoremFlickr({ category: "education" }),
+          previewVideo: faker.internet.url(),
+          supervisorId: teachers[faker.number.int({ min: 0, max: 4 })].id,
+          startTime: faker.date.future(),
+          endTime: faker.date.future(),
+        },
+      })
+    )
+  );
+
+  // Lessons
+  const lessons = await Promise.all(
+    courses.flatMap((course) =>
+      Array.from({ length: 5 }, () =>
+        prisma.lessons.create({
+          data: {
+            id: faker.string.uuid(),
+            name: faker.lorem.words(3),
+            description: faker.lorem.sentences(2),
+            previewImage: faker.image.urlLoremFlickr({ category: "education" }),
+            videoUrl: faker.internet.url(),
+            pdfUrl: faker.internet.url(),
+            day: faker.helpers.arrayElement([
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+            ]),
+            startTime: faker.date.future(),
+            endTime: faker.date.future(),
+          },
+        })
+      )
+    )
+  );
+
+  // Associate lessons with courses
+  for (const course of courses) {
+    const courseLessons = lessons.filter((lesson) =>
+      lesson.id.includes(course.id.toString())
+    );
+    await prisma.courses.update({
+      where: { id: course.id },
       data: {
-        id: `admin${i}`, // Unique ID for the admin
-        username: `admin${i}`,
+        lessons: {
+          connect: courseLessons.map((lesson) => ({ id: lesson.id })),
+        },
       },
     });
   }
 
-  // COURSE
-  for (let i = 1; i <= 10; i++) {
-    await prisma.courses.create({
-      data: {
-        name: loremIpsum({ count: 1, units: "words" }), // 2 kelime Lorem Ipsum
-        description: loremIpsum({ count: 2, units: "paragraphs" }), // 2 paragraf Lorem Ipsum
-        previewImage: `https://picsum.photos/200/300?random=${i}`,
-        previewVideo: `https://picsum.photos/200/300?random=${i}`,
-        courseUrl: `https://picsum.photos/200/300?random=${i}`,
-        startTime: new Date(new Date().setHours(new Date().getHours() + 1)),
-        endTime: new Date(new Date().setHours(new Date().getHours() + 2)),
-      },
-    });
+  // Students
+  const students = await Promise.all(
+    Array.from({ length: 5 }, () =>
+      prisma.student.create({
+        data: {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          username: faker.internet.username(),
+          phone: faker.phone.number(),
+          name: faker.person.firstName(),
+          surname: faker.person.lastName(),
+          address: faker.location.streetAddress(),
+          sex: faker.helpers.arrayElement(["MALE", "FEMALE"]),
+          birthday: faker.date.birthdate({ min: 18, max: 25, mode: "age" }),
+        },
+      })
+    )
+  );
+
+  // Associate students with courses
+  for (const student of students) {
+    const studentCourses = courses.slice(
+      0,
+      faker.number.int({ min: 1, max: 3 })
+    ); // Her öğrenciye 1 ila 3 kurs
+    for (const course of studentCourses) {
+      await prisma.studentCourses.create({
+        data: {
+          studentId: student.id,
+          courseId: course.id,
+        },
+      });
+    }
   }
 
-  // TEACHER
-  for (let i = 1; i <= 15; i++) {
-    await prisma.teacher.create({
-      data: {
-        id: `teacher${i}`, // Unique ID for the teacher
-        email: `${loremIpsum({count: 1, units: "words"})}${i}@example.com`,
-        username: `${loremIpsum({count: 1, units: "words"})}${i}`,
-        phone: `123-456-789${i}`,
-        name: loremIpsum({ count: 1, units: "words" }), // 2 kelime Lorem Ipsum
-        surname: loremIpsum({ count: 1, units: "words" }), // 2 kelime Lorem Ipsum
-        address: loremIpsum({ count: 5, units: "words" }), // 2 kelime Lorem Ipsum
-        img: `https://picsum.photos/200/300?random=${i}`,
-        sex: i % 2 === 0 ? UserSex.MALE : UserSex.FEMALE,
-        birthday: new Date(
-          new Date().setFullYear(new Date().getFullYear() - 30)
-        ),
-        Courses: { connect: [{ id: (i % 10) + 1 }] },
-      },
+  // Associate students with lessons (Ensuring no duplicates)
+  for (const student of students) {
+    const enrolledCourses = await prisma.studentCourses.findMany({
+      where: { studentId: student.id },
     });
+    const enrolledLessons = await Promise.all(
+      enrolledCourses.map(async (course) => {
+        return await prisma.lessons.findMany({
+          where: { Courses: { some: { id: course.courseId } } },
+        });
+      })
+    ).then((lessonsArray) => lessonsArray.flat());
+
+    for (const lesson of enrolledLessons) {
+      const existingEnrollment = await prisma.studentLessons.findFirst({
+        where: {
+          studentId: student.id,
+          lessonId: lesson.id,
+        },
+      });
+
+      if (!existingEnrollment) {
+        await prisma.studentLessons.create({
+          data: {
+            studentId: student.id,
+            lessonId: lesson.id,
+            lessonCompletion: faker.datatype.boolean(),
+          },
+        });
+      }
+    }
   }
 
-  // LESSON
-  for (let i = 1; i <= 30; i++) {
-    await prisma.lessons.create({
+  // Exams and Questions
+  for (const lesson of lessons) {
+    const exam = await prisma.exam.create({
       data: {
-        id: `lesson${i}`, // Unique ID for the lesson
-        name: loremIpsum({ count: 1, units: "words" }),
-        description: loremIpsum({ count: 1, units: "paragraphs" }),
-        previewImage: `https://picsum.photos/200/300?random=${i}`,
-        videoUrl: `https://picsum.photos/200/300?random=${i}`,
-        pdfUrl: `https://picsum.photos/200/300?random=${i}`,
-        lessonCompletion: Math.random() < 0.5,
-        day: Day[
-          Object.keys(Day)[
-            Math.floor(Math.random() * Object.keys(Day).length)
-          ] as keyof typeof Day
-        ],
-        startTime: new Date(new Date().setHours(new Date().getHours() + 2)),
-        endTime: new Date(new Date().setHours(new Date().getHours() + 4)),
-        Courses: { connect: [{ id: (i % 10) + 1 }] },
+        title: `${lesson.name} Exam`,
+        description: `Exam for ${lesson.name}`,
+        lessonId: lesson.id,
+        coursesId:
+          courses.find(
+            (course) => course.id.toString() === lesson.id.toString()
+          )?.id || null,
       },
     });
 
-    console.log("Seeding completed successfully.");
+    // Create questions for each exam
+    const numberOfQuestions = faker.number.int({ min: 3, max: 5 });
+    for (let i = 0; i < numberOfQuestions; i++) {
+      await prisma.question.create({
+        data: {
+          text: faker.lorem.sentence(),
+          options: [
+            faker.lorem.word(),
+            faker.lorem.word(),
+            faker.lorem.word(),
+            faker.lorem.word(),
+          ], // 4 random options
+          answer: faker.number.int({ min: 0, max: 3 }).toString(), // Random correct answer index
+          examId: exam.id,
+        },
+      });
+    }
   }
 
-  // STUDENT
-  for (let i = 1; i <= 50; i++) {
-    await prisma.student.create({
-      data: {
-        id: `student${i}`,
-        email: `student${i}@example.com`,
-        username: `student${i}`,
-        phone: `987-654-321${i}`,
-        name: `SName${i}`,
-        surname: `SSurname ${i}`,
-        address: `Address${i}`,
-        img: `https://picsum.photos/200/300?random=${i}`,
-        sex: i % 2 === 0 ? UserSex.MALE : UserSex.FEMALE,
-        birthday: new Date(
-          new Date().setFullYear(new Date().getFullYear() - 10)
-        ),
-        Courses: { connect: [{ id: (i % 10) + 1 }] },
+  // Exam Results
+  for (const student of students) {
+    const studentExams = await prisma.exam.findMany({
+      where: {
+        lessonId: {
+          in: (
+            await prisma.studentLessons.findMany({
+              where: { studentId: student.id },
+              select: { lessonId: true },
+            })
+          ).map((enrollment) => enrollment.lessonId),
+        },
       },
     });
+
+    for (const exam of studentExams) {
+      const score = faker.number.int({ min: 0, max: 100 });
+      await prisma.examResult.create({
+        data: {
+          studentId: student.id,
+          examId: exam.id,
+          score: score,
+        },
+      });
+    }
   }
+
+  console.log("Seed completed successfully!");
 }
+
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error(e);
+  })
+  .finally(async () => {
     await prisma.$disconnect();
-    process.exit(1);
   });

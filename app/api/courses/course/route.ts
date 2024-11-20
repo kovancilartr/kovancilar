@@ -14,8 +14,23 @@ export async function GET(req: Request) {
         },
         include: {
           students: true,
-          lessons: true,
+          StudentCourses: true,
           supervisor: true,
+          lessons: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              previewImage: true,
+              videoUrl: true,
+              pdfUrl: true,
+              day: true,
+              startTime: true,
+              endTime: true,
+              Courses: true,
+              Exams: true,
+            },
+          },
         },
       });
       if (!course) {

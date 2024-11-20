@@ -26,7 +26,7 @@ export default function CoursePage() {
     return <p>Hata: {error}</p>;
   }
 
-  console.log("AAAcourse", course?.lessons);
+  console.log("AAAcourse", course);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-black h-[calc(100vh-130px)]">
